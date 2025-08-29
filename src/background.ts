@@ -65,8 +65,10 @@ export async function handleInstall(tabId: number): Promise<void> {
         // Execute in page context so ChatMessage is available
         world: "MAIN",
         func: (msg: string) => {
-          const send = () =>
-            (window as any).ChatMessage?.create({ content: msg });
+          const send = () => {
+            const author = (window as any).game?.user?.id;
+            (window as any).ChatMessage?.create({ content: msg, author });
+          };
           if ((window as any).ChatMessage) {
             send();
           } else {
@@ -78,9 +80,9 @@ export async function handleInstall(tabId: number): Promise<void> {
     } else if (runtime.tabs?.executeScript) {
       console.log("Injecting message via runtime.tabs to tab", tabId);
       await runtime.tabs.executeScript(tabId, {
-        code: `(function(){const send=()=>window.ChatMessage?.create({content: ${JSON.stringify(
+        code: `(function(){const send=()=>{const a=window.game?.user?.id;window.ChatMessage?.create({content: ${JSON.stringify(
           message,
-        )}});if(window.ChatMessage){send();}else{window.Hooks?.once?.("ready",send);}})();`,
+        )},author:a});};if(window.ChatMessage){send();}else{window.Hooks?.once?.("ready",send);}})();`,
       });
     }
     console.log("Message injection attempted for tab", tabId);
