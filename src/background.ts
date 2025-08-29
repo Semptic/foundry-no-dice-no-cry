@@ -23,6 +23,8 @@ export async function isFoundryVTT(tabId: number): Promise<boolean> {
       console.log("Checking for Foundry VTT via runtime.scripting on tab", tabId);
       const [result] = await runtime.scripting.executeScript({
         target: { tabId },
+        // Run in the page context so window.game is accessible
+        world: "MAIN",
         func: () => Boolean((window as any).game),
       });
       const isFoundry = Boolean(result?.result);
@@ -60,6 +62,8 @@ export async function handleInstall(tabId: number): Promise<void> {
       console.log("Injecting message via runtime.scripting to tab", tabId);
       await runtime.scripting.executeScript({
         target: { tabId },
+        // Execute in page context so ChatMessage is available
+        world: "MAIN",
         func: (msg: string) => {
           const send = () =>
             (window as any).ChatMessage?.create({ content: msg });
