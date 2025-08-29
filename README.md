@@ -1,4 +1,4 @@
-# foundry-no-dice-no-stress
+# foundry-no-dice-no-cry
 
 Removes the stress of rolling dice in vtt foundry
 
