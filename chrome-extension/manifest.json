@@ -6,6 +6,8 @@
   "background": {
     "service_worker": "background.js"
   },
+  "permissions": ["scripting", "tabs"],
+  "host_permissions": ["<all_urls>"],
   "action": {
     "default_title": "No Dice, No Cry!"
   }

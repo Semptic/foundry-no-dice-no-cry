@@ -10,7 +10,8 @@ This repository now includes minimal stubs for the **No Dice, No Cry!** browser 
 - `firefox-extension/` – Manifest V2 stub for Mozilla Firefox.
 
 These stubs share a tiny TypeScript library that logs when **No Dice, No Cry!** installs. Each extension's background script
-registers this handler with its browser's runtime API and bundles the result into its own directory.
+registers this handler with its browser's runtime API and bundles the result into its own directory. Before installing, the
+script confirms the active tab is running Foundry VTT by checking for `window.game`.
 
 ### Building the extensions
 
