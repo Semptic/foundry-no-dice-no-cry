@@ -25,9 +25,9 @@ jobs:
           tag-prefix: v
       - run: npm run build
       - run: zip -r ../../chrome-extension-${{ steps.bump_version.outputs.newVersion }}.zip .
-        working-directory: dist/chrome-extension
+        working-directory: dist/no-dice-no-cry-chrome
       - run: zip -r ../../firefox-extension-${{ steps.bump_version.outputs.newVersion }}.zip .
-        working-directory: dist/firefox-extension
+        working-directory: dist/no-dice-no-cry-firefox
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
