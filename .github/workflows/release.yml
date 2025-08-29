@@ -20,7 +20,7 @@ jobs:
       - run: npm test
       - name: Bump version
         id: bump_version
-        uses: phips28/gh-action-bump-version@v11
+        uses: phips28/gh-action-bump-version@v11.1.1
         with:
           tag-prefix: v
       - run: npm run build
