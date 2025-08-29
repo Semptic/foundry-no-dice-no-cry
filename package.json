@@ -1,6 +1,6 @@
 {
   "name": "foundry-no-dice-no-stress",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Removes the stress of rolling dice in vtt foundry",
   "main": "index.js",
   "scripts": {
