@@ -4,7 +4,7 @@
   "description": "Removes the stress of rolling dice in vtt foundry",
   "main": "index.js",
   "scripts": {
-    "build": "rm -rf dist && mkdir -p dist/chrome-extension dist/firefox-extension && esbuild chrome-extension/background.ts --bundle --platform=browser --outdir=dist/chrome-extension && esbuild firefox-extension/background.ts --bundle --platform=browser --outdir=dist/firefox-extension && cp chrome-extension/manifest.json dist/chrome-extension/ && cp firefox-extension/manifest.json dist/firefox-extension/",
+    "build": "rm -rf dist && mkdir -p dist/no-dice-no-cry-chrome dist/no-dice-no-cry-firefox && esbuild chrome-extension/background.ts --bundle --platform=browser --outdir=dist/no-dice-no-cry-chrome && esbuild firefox-extension/background.ts --bundle --platform=browser --outdir=dist/no-dice-no-cry-firefox && node scripts/update-manifests.js",
     "typecheck": "tsc --noEmit",
     "test": "npm run typecheck"
   },

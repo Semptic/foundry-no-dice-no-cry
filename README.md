@@ -17,4 +17,4 @@ registers this handler with its browser's runtime API and bundles the result int
 1. Install dependencies: `npm install`
 2. Build the TypeScript background scripts: `npm run build`
 
-The generated `background.js` files are written to the extension folders and are ignored by git.
+The generated `background.js` files and updated manifests are written to `dist/no-dice-no-cry-{chrome,firefox}` and are ignored by git.
