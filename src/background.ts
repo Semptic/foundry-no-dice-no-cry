@@ -1,8 +1,14 @@
 declare const chrome: any;
 declare const browser: any;
 
-function getRuntime(): any {
-  return typeof browser !== "undefined" ? browser : chrome;
+export function getRuntime(): any {
+  if (typeof browser !== "undefined") {
+    return browser;
+  }
+  if (typeof chrome !== "undefined") {
+    return chrome;
+  }
+  return undefined;
 }
 
 export async function isFoundryVTT(tabId: number): Promise<boolean> {
