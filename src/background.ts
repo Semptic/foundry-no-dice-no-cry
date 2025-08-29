@@ -59,32 +59,37 @@ export async function handleInstall(tabId: number): Promise<void> {
 
   try {
     if (runtime.scripting?.executeScript) {
-      console.log("Injecting message via runtime.scripting to tab", tabId);
-      await runtime.scripting.executeScript({
-        target: { tabId },
-        // Execute in page context so ChatMessage is available
-        world: "MAIN",
-        func: (msg: string) => {
-          const send = () => {
-            const author = (window as any).game?.user?.id;
-            (window as any).ChatMessage?.create({ content: msg, author });
-          };
-          if ((window as any).ChatMessage) {
-            send();
-          } else {
-            (window as any).Hooks?.once?.("ready", send);
-          }
-        },
-        args: [message],
-      });
+        console.log("Injecting message via runtime.scripting to tab", tabId);
+        await runtime.scripting.executeScript({
+          target: { tabId },
+          // Execute in page context so ChatMessage is available
+          world: "MAIN",
+          func: (msg: string) => {
+            const send = () => {
+              const author = (window as any).game?.user?.id;
+              const ChatMessage = (window as any).ChatMessage;
+              if (!author || !ChatMessage) {
+                console.warn("Cannot inject message: missing author or ChatMessage");
+                return;
+              }
+              ChatMessage.create({ content: msg, author });
+            };
+            if ((window as any).game?.ready) {
+              send();
+            } else {
+              (window as any).Hooks?.once?.("ready", send);
+            }
+          },
+          args: [message],
+        });
     } else if (runtime.tabs?.executeScript) {
-      console.log("Injecting message via runtime.tabs to tab", tabId);
-      await runtime.tabs.executeScript(tabId, {
-        code: `(function(){const send=()=>{const a=window.game?.user?.id;window.ChatMessage?.create({content: ${JSON.stringify(
-          message,
-        )},author:a});};if(window.ChatMessage){send();}else{window.Hooks?.once?.("ready",send);}})();`,
-      });
-    }
+        console.log("Injecting message via runtime.tabs to tab", tabId);
+        await runtime.tabs.executeScript(tabId, {
+          code: `(function(){const send=()=>{const a=window.game?.user?.id;const CM=window.ChatMessage;if(!a||!CM){console.warn("Cannot inject message: missing author or ChatMessage");return;}CM.create({content: ${JSON.stringify(
+            message,
+          )},author:a});};if(window.game?.ready){send();}else{window.Hooks?.once?("ready",send);}})();`,
+        });
+      }
     console.log("Message injection attempted for tab", tabId);
   } catch (err) {
     console.warn("handleInstall failed for tab", tabId, err);
