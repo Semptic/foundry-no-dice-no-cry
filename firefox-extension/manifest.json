@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "No Dice, No Cry!",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "description": "Stub extension for Firefox.",
   "background": {
     "scripts": ["background.js"]
