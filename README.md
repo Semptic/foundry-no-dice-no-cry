@@ -2,6 +2,8 @@
 
 Removes the stress of rolling dice in vtt foundry
 
+When Foundry finishes loading, it posts a first-person chat message linking to this repository to explain that it's being used to ease the anxiety of unknown dice rolls.
+
 ## Browser Extension Stubs
 
 This repository now includes minimal stubs for the **No Dice, No Cry!** browser extensions:

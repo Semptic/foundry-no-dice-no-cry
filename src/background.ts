@@ -29,6 +29,34 @@ export async function isFoundryVTT(tabId: number): Promise<boolean> {
   return false;
 }
 
-export function handleInstall() {
+export async function handleInstall(tabId: number): Promise<void> {
+  const runtime = getRuntime();
+  if (!runtime) return;
+
+  const message =
+    "Rolling dice with unknown results gives me a lot of stress, so I'm using <a href='https://github.com/foundry-no-dice-no-cry'>no-dice-no-cry</a> to reduce it.";
+
+  try {
+    if (runtime.scripting?.executeScript) {
+      await runtime.scripting.executeScript({
+        target: { tabId },
+        func: (msg: string) => {
+          if ((window as any).ChatMessage) {
+            (window as any).ChatMessage.create({ content: msg });
+          }
+        },
+        args: [message],
+      });
+    } else if (runtime.tabs?.executeScript) {
+      await runtime.tabs.executeScript(tabId, {
+        code: `if (window.ChatMessage) ChatMessage.create({content: ${JSON.stringify(
+          message,
+        )}});`,
+      });
+    }
+  } catch {
+    // ignored
+  }
+
   console.log("No Dice, No Cry! extension installed");
 }
