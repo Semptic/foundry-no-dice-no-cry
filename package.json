@@ -1,0 +1,19 @@
+{
+  "name": "foundry-no-dice-no-stress",
+  "version": "1.0.0",
+  "description": "Removes the stress of rolling dice in vtt foundry",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild chrome-extension/background.ts --bundle --platform=browser --outfile=chrome-extension/background.js && esbuild firefox-extension/background.ts --bundle --platform=browser --outfile=firefox-extension/background.js",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run typecheck"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "esbuild": "^0.25.9",
+    "typescript": "^5.9.2"
+  }
+}
