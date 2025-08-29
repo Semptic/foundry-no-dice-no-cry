@@ -41,17 +41,21 @@ export async function handleInstall(tabId: number): Promise<void> {
       await runtime.scripting.executeScript({
         target: { tabId },
         func: (msg: string) => {
+          const send = () =>
+            (window as any).ChatMessage?.create({ content: msg });
           if ((window as any).ChatMessage) {
-            (window as any).ChatMessage.create({ content: msg });
+            send();
+          } else {
+            (window as any).Hooks?.once?.("ready", send);
           }
         },
         args: [message],
       });
     } else if (runtime.tabs?.executeScript) {
       await runtime.tabs.executeScript(tabId, {
-        code: `if (window.ChatMessage) ChatMessage.create({content: ${JSON.stringify(
+        code: `(function(){const send=()=>window.ChatMessage?.create({content: ${JSON.stringify(
           message,
-        )}});`,
+        )}});if(window.ChatMessage){send();}else{window.Hooks?.once?.("ready",send);}})();`,
       });
     }
   } catch {
