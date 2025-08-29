@@ -5,5 +5,6 @@
   "description": "Stub extension for Firefox.",
   "background": {
     "scripts": ["background.js"]
-  }
+  },
+  "permissions": ["tabs", "<all_urls>"]
 }

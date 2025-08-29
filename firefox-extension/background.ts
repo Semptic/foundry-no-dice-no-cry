@@ -1,6 +1,11 @@
-import { handleInstall } from '../src/background';
+import { handleInstall, isFoundryVTT } from '../src/background';
 
 declare const browser: any;
 
-browser.runtime.onInstalled.addListener(handleInstall);
+browser.tabs.onUpdated.addListener(async (tabId: number, changeInfo: any) => {
+  if (changeInfo.status === 'complete' && await isFoundryVTT(tabId)) {
+    handleInstall();
+  }
+});
+
 export {};
