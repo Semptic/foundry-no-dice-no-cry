@@ -24,9 +24,9 @@ jobs:
         with:
           tag-prefix: v
       - run: npm run build
-      - run: zip -r ../../no-dice-no-cry-chrome-${{ steps.bump_version.outputs.newVersion }}.zip .
+      - run: zip -r ../../no-dice-no-cry-chrome-${{ steps.bump_version.outputs.newTag }}.zip .
         working-directory: dist/no-dice-no-cry-chrome
-      - run: zip -r ../../no-dice-no-cry-firefox-${{ steps.bump_version.outputs.newVersion }}.zip .
+      - run: zip -r ../../no-dice-no-cry-firefox-${{ steps.bump_version.outputs.newTag }}.zip .
         working-directory: dist/no-dice-no-cry-firefox
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -34,5 +34,5 @@ jobs:
           tag_name: ${{ steps.bump_version.outputs.newTag }}
           generate_release_notes: true
           files: |
-            chrome-extension-${{ steps.bump_version.outputs.newVersion }}.zip
-            firefox-extension-${{ steps.bump_version.outputs.newVersion }}.zip
+            no-dice-no-cry-chrome-${{ steps.bump_version.outputs.newTag }}.zip 
+            no-dice-no-cry-firefox-${{ steps.bump_version.outputs.newTag }}.zip
