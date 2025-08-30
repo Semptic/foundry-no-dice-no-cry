@@ -12,7 +12,11 @@ export function resetInjected(
   if (prev === undefined) {
     return;
   }
-  if (transitionType === "reload" || prev !== url) {
+  if (transitionType === "reload") {
+    injectedTabs.delete(tabId);
+    return;
+  }
+  if (url !== undefined && prev !== url) {
     injectedTabs.delete(tabId);
   }
 }
