@@ -1,6 +1,12 @@
 declare const chrome: any;
 declare const browser: any;
 
+const injectedTabs = new Set<number>();
+
+export function resetInjected(tabId: number): void {
+  injectedTabs.delete(tabId);
+}
+
 export function getRuntime(): any {
   if (typeof browser !== "undefined") {
     return browser;
@@ -48,6 +54,11 @@ export async function isFoundryVTT(tabId: number): Promise<boolean> {
 }
 
 export async function handleInstall(tabId: number): Promise<void> {
+  if (injectedTabs.has(tabId)) {
+    console.log("Message already injected for tab", tabId);
+    return;
+  }
+  injectedTabs.add(tabId);
   const runtime = getRuntime();
   if (!runtime) {
     console.log("No runtime available for handleInstall on tab", tabId);
