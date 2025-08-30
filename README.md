@@ -21,3 +21,8 @@ script confirms the active tab is running Foundry VTT by checking for `window.ga
 2. Build the TypeScript background scripts: `npm run build`
 
 The generated `background.js` files and updated manifests are written to `dist/no-dice-no-cry-{chrome,firefox}` and are ignored by git.
+
+### Linting and tests
+
+- Lint TypeScript sources: `npm run lint`
+- Run tests: `npm test`
