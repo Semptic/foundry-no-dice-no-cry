@@ -2,6 +2,7 @@ declare const chrome: any;
 declare const browser: any;
 
 const injectedTabs = new Map<number, string | undefined>();
+const activeTabs = new Set<number>();
 
 export function resetInjected(
   tabId: number,
@@ -67,6 +68,55 @@ export async function isFoundryVTT(tabId: number): Promise<boolean> {
   return false;
 }
 
+export async function sendChatMessage(
+  tabId: number,
+  message: string,
+): Promise<void> {
+  const runtime = getRuntime();
+  if (!runtime) {
+    console.log("No runtime available for sendChatMessage on tab", tabId);
+    return;
+  }
+  try {
+    if (runtime.scripting?.executeScript) {
+      console.log("Injecting message via runtime.scripting to tab", tabId);
+      await runtime.scripting.executeScript({
+        target: { tabId },
+        world: "MAIN",
+        func: (msg: string) => {
+          const send = () => {
+            const author = (window as any).game?.user?.id;
+            const ChatMessage = (window as any).ChatMessage;
+            if (!author || !ChatMessage) {
+              console.warn(
+                "Cannot inject message: missing author or ChatMessage",
+              );
+              return;
+            }
+            ChatMessage.create({ content: msg, author });
+          };
+          if ((window as any).game?.ready) {
+            send();
+          } else {
+            (window as any).Hooks?.once?.("ready", send);
+          }
+        },
+        args: [message],
+      });
+    } else if (runtime.tabs?.executeScript) {
+      console.log("Injecting message via runtime.tabs to tab", tabId);
+      await runtime.tabs.executeScript(tabId, {
+        code: `(function(){const send=()=>{const a=window.game?.user?.id;const CM=window.ChatMessage;if(!a||!CM){console.warn("Cannot inject message: missing author or ChatMessage");return;}CM.create({content: ${JSON.stringify(
+          message,
+        )},author:a});};if(window.game?.ready){send();}else{window.Hooks?.once("ready",send);}})();`,
+      });
+    }
+    console.log("Chat message injection attempted for tab", tabId);
+  } catch (err) {
+    console.warn("sendChatMessage failed for tab", tabId, err);
+  }
+}
+
 export async function handleInstall(tabId: number): Promise<void> {
   if (injectedTabs.has(tabId)) {
     console.log("Message already injected for tab", tabId);
@@ -96,44 +146,7 @@ export async function handleInstall(tabId: number): Promise<void> {
   const message =
     "Rolling dice with unknown results gives me a lot of stress, so I'm using <a href='https://github.com/foundry-no-dice-no-cry'>no-dice-no-cry</a> to reduce it.";
 
-  try {
-    if (runtime.scripting?.executeScript) {
-        console.log("Injecting message via runtime.scripting to tab", tabId);
-        await runtime.scripting.executeScript({
-          target: { tabId },
-          // Execute in page context so ChatMessage is available
-          world: "MAIN",
-          func: (msg: string) => {
-            const send = () => {
-              const author = (window as any).game?.user?.id;
-              const ChatMessage = (window as any).ChatMessage;
-              if (!author || !ChatMessage) {
-                console.warn("Cannot inject message: missing author or ChatMessage");
-                return;
-              }
-              ChatMessage.create({ content: msg, author });
-            };
-            if ((window as any).game?.ready) {
-              send();
-            } else {
-              (window as any).Hooks?.once?.("ready", send);
-            }
-          },
-          args: [message],
-        });
-    } else if (runtime.tabs?.executeScript) {
-        console.log("Injecting message via runtime.tabs to tab", tabId);
-        await runtime.tabs.executeScript(tabId, {
-          code: `(function(){const send=()=>{const a=window.game?.user?.id;const CM=window.ChatMessage;if(!a||!CM){console.warn("Cannot inject message: missing author or ChatMessage");return;}CM.create({content: ${JSON.stringify(
-            message,
-          )},author:a});};if(window.game?.ready){send();}else{window.Hooks?.once?("ready",send);}})();`,
-        });
-      }
-    console.log("Message injection attempted for tab", tabId);
-  } catch (err) {
-    console.warn("handleInstall failed for tab", tabId, err);
-  }
-
+  await sendChatMessage(tabId, message);
   console.log("No Dice, No Cry! extension installed");
 }
 
@@ -183,4 +196,17 @@ export async function replaceDiceWithZero(tabId: number): Promise<void> {
   } catch (err) {
     console.warn("replaceDiceWithZero failed for tab", tabId, err);
   }
+
+export async function toggleActive(tabId: number): Promise<void> {
+  const isActive = activeTabs.has(tabId);
+  if (isActive) {
+    activeTabs.delete(tabId);
+  } else {
+    activeTabs.add(tabId);
+  }
+  const msg = isActive
+    ? "No Dice, No Cry! deactivated"
+    : "No Dice, No Cry! activated";
+  await sendChatMessage(tabId, msg);
+  console.log("Toggled active state for tab", tabId, !isActive);
 }

@@ -3,6 +3,7 @@ import {
   isFoundryVTT,
   getRuntime,
   resetInjected,
+  toggleActive,
 } from '../src/background';
 
 const runtime = getRuntime();
@@ -49,6 +50,42 @@ if (runtime?.tabs?.onUpdated?.addListener) {
   );
 } else {
   console.warn('No runtime available for tabs.onUpdated');
+}
+
+if (runtime?.action?.onClicked?.addListener) {
+  runtime.action.onClicked.addListener(async (tab: any) => {
+    const tabId = tab?.id;
+    if (typeof tabId === 'number') {
+      const isFoundry = await isFoundryVTT(tabId);
+      console.log('Toggle requested on tab', tabId, isFoundry);
+      if (isFoundry) {
+        await toggleActive(tabId);
+      } else {
+        console.log(
+          'Skipping toggle; Foundry not detected on tab',
+          tabId,
+        );
+      }
+    }
+  });
+} else if (runtime?.browserAction?.onClicked?.addListener) {
+  runtime.browserAction.onClicked.addListener(async (tab: any) => {
+    const tabId = tab?.id;
+    if (typeof tabId === 'number') {
+      const isFoundry = await isFoundryVTT(tabId);
+      console.log('Toggle requested on tab', tabId, isFoundry);
+      if (isFoundry) {
+        await toggleActive(tabId);
+      } else {
+        console.log(
+          'Skipping toggle; Foundry not detected on tab',
+          tabId,
+        );
+      }
+    }
+  });
+} else {
+  console.warn('No runtime available for action clicks');
 }
 
 export {};
