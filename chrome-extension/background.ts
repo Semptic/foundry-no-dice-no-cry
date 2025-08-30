@@ -18,7 +18,7 @@ if (runtime?.webNavigation?.onBeforeNavigate?.addListener) {
 } else if (runtime?.tabs?.onUpdated?.addListener) {
   // Fallback if webNavigation is unavailable
   runtime.tabs.onUpdated.addListener((tabId: number, changeInfo: any) => {
-    if (changeInfo.url) {
+    if (changeInfo.status === 'loading' || changeInfo.url) {
       resetInjected(tabId, changeInfo.url);
     }
   });
