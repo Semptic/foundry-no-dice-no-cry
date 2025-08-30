@@ -9,6 +9,12 @@
   "permissions": ["scripting", "tabs"],
   "host_permissions": ["<all_urls>"],
   "action": {
-    "default_title": "No Dice, No Cry!"
+    "default_title": "No Dice, No Cry!",
+    "default_icon": "icon.pgn"
+  },
+  "icons": {
+    "16": "icon.pgn",
+    "48": "icon.pgn",
+    "128": "icon.pgn"
   }
 }
