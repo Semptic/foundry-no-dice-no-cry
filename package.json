@@ -6,7 +6,8 @@
   "scripts": {
     "build": "rm -rf dist && mkdir -p dist/no-dice-no-cry-chrome dist/no-dice-no-cry-firefox && esbuild chrome-extension/background.ts --bundle --platform=browser --outdir=dist/no-dice-no-cry-chrome && esbuild firefox-extension/background.ts --bundle --platform=browser --outdir=dist/no-dice-no-cry-firefox && node scripts/update-manifests.js",
     "typecheck": "tsc --noEmit",
-    "test": "npm run typecheck"
+    "test": "npm run typecheck",
+    "lint": "npm run typecheck"
   },
   "keywords": [],
   "author": "",
