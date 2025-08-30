@@ -9,17 +9,17 @@ const runtime = getRuntime();
 
 if (runtime?.webNavigation?.onBeforeNavigate?.addListener) {
   runtime.webNavigation.onBeforeNavigate.addListener(
-    ({ tabId, frameId }: any) => {
+    ({ tabId, frameId, url, transitionType }: any) => {
       if (frameId === 0) {
-        resetInjected(tabId);
+        resetInjected(tabId, url, transitionType);
       }
     },
   );
 } else if (runtime?.tabs?.onUpdated?.addListener) {
   // Fallback if webNavigation is unavailable
   runtime.tabs.onUpdated.addListener((tabId: number, changeInfo: any) => {
-    if (changeInfo.status === 'loading') {
-      resetInjected(tabId);
+    if (changeInfo.status === 'loading' || changeInfo.url) {
+      resetInjected(tabId, changeInfo.url);
     }
   });
 } else {

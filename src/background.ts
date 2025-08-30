@@ -1,10 +1,20 @@
 declare const chrome: any;
 declare const browser: any;
 
-const injectedTabs = new Set<number>();
+const injectedTabs = new Map<number, string | undefined>();
 
-export function resetInjected(tabId: number): void {
-  injectedTabs.delete(tabId);
+export function resetInjected(
+  tabId: number,
+  url: string | undefined,
+  transitionType?: string,
+): void {
+  const prev = injectedTabs.get(tabId);
+  if (prev === undefined) {
+    return;
+  }
+  if (transitionType === "reload" || prev !== url) {
+    injectedTabs.delete(tabId);
+  }
 }
 
 export function getRuntime(): any {
@@ -64,6 +74,19 @@ export async function handleInstall(tabId: number): Promise<void> {
     console.log("No runtime available for handleInstall on tab", tabId);
     return;
   }
+
+  let url: string | undefined;
+  try {
+    url = (await runtime.tabs?.get?.(tabId))?.url;
+  } catch {
+    url = undefined;
+  }
+
+  if (injectedTabs.get(tabId) === url) {
+    console.log("Message already injected for tab", tabId);
+    return;
+  }
+  injectedTabs.set(tabId, url);
 
   const message =
     "Rolling dice with unknown results gives me a lot of stress, so I'm using <a href='https://github.com/foundry-no-dice-no-cry'>no-dice-no-cry</a> to reduce it.";
