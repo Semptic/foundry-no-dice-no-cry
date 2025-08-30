@@ -1,6 +1,30 @@
-import { handleInstall, isFoundryVTT, getRuntime } from '../src/background';
+import {
+  handleInstall,
+  isFoundryVTT,
+  getRuntime,
+  resetInjected,
+} from '../src/background';
 
 const runtime = getRuntime();
+
+if (runtime?.webNavigation?.onBeforeNavigate?.addListener) {
+  runtime.webNavigation.onBeforeNavigate.addListener(
+    ({ tabId, frameId, url, transitionType }: any) => {
+      if (frameId === 0) {
+        resetInjected(tabId, url, transitionType);
+      }
+    },
+  );
+} else if (runtime?.tabs?.onUpdated?.addListener) {
+  // Fallback if webNavigation is unavailable
+  runtime.tabs.onUpdated.addListener((tabId: number, changeInfo: any) => {
+    if (changeInfo.url) {
+      resetInjected(tabId, changeInfo.url);
+    }
+  });
+} else {
+  console.warn('No runtime available for navigation events');
+}
 
 if (runtime?.tabs?.onUpdated?.addListener) {
   runtime.tabs.onUpdated.addListener(
