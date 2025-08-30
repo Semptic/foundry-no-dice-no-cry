@@ -68,7 +68,8 @@ export async function handleInstall(tabId: number): Promise<void> {
     console.log("Message already injected for tab", tabId);
     return;
   }
-  injectedTabs.add(tabId);
+  // Mark this tab as processed to prevent duplicate injections
+  injectedTabs.set(tabId, undefined);
   const runtime = getRuntime();
   if (!runtime) {
     console.log("No runtime available for handleInstall on tab", tabId);
