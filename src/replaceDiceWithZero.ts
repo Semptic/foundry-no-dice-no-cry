@@ -6,23 +6,13 @@ export function replaceDiceWithZero(): void {
     }
     const proto = Roll.prototype as any;
 
-    // Patch individual die rolls so hooks like Dice So Nice receive zeroed results
-    const diceTypes = (window as any).CONFIG?.Dice?.types;
-    Object.values(diceTypes || {}).forEach((Die: any) => {
-      const dProto = Die?.prototype;
-      if (!dProto || dProto._noDiceNoCryPatched) {
-        return;
-      }
-      dProto._noDiceNoCryOriginalRoll = dProto.roll;
-      dProto.roll = function (...rollArgs: any[]): any {
-        const roll = dProto._noDiceNoCryOriginalRoll.apply(this, rollArgs);
-        if (roll && typeof roll.result === "number") {
-          roll.result = 0;
-        }
-        return roll;
-      };
-      dProto._noDiceNoCryPatched = true;
-    });
+    // Patch CONFIG.Dice.randomUniform so Dice So Nice animations also show zero
+    const diceConfig = (window as any).CONFIG?.Dice;
+    if (diceConfig && !diceConfig._noDiceNoCryPatched) {
+      diceConfig._noDiceNoCryOriginalRandomUniform = diceConfig.randomUniform;
+      diceConfig.randomUniform = () => 0;
+      diceConfig._noDiceNoCryPatched = true;
+    }
 
     proto._noDiceNoCryOriginalEvaluate = proto._evaluate;
     proto._evaluate = async function (...args: any[]): Promise<any> {
@@ -54,19 +44,14 @@ export function replaceDiceWithZero(): void {
 export function restoreDice(): void {
   const Roll = (window as any).Roll;
   const proto = Roll?.prototype as any;
-  const diceTypes = (window as any).CONFIG?.Dice?.types;
-  if (diceTypes) {
-    Object.values(diceTypes).forEach((Die: any) => {
-      const dProto = Die?.prototype;
-      if (!dProto?._noDiceNoCryPatched) {
-        return;
-      }
-      if (dProto._noDiceNoCryOriginalRoll) {
-        dProto.roll = dProto._noDiceNoCryOriginalRoll;
-        delete dProto._noDiceNoCryOriginalRoll;
-      }
-      delete dProto._noDiceNoCryPatched;
-    });
+  const diceConfig = (window as any).CONFIG?.Dice;
+
+  if (diceConfig?._noDiceNoCryPatched) {
+    if (diceConfig._noDiceNoCryOriginalRandomUniform) {
+      diceConfig.randomUniform = diceConfig._noDiceNoCryOriginalRandomUniform;
+      delete diceConfig._noDiceNoCryOriginalRandomUniform;
+    }
+    delete diceConfig._noDiceNoCryPatched;
   }
 
   if (!Roll || !proto?._noDiceNoCryPatched) {
