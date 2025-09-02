@@ -4,6 +4,7 @@ import {
   getRuntime,
   resetInjected,
   toggleActive,
+  isActive,
 } from '../src/background';
 
 const runtime = getRuntime();
@@ -38,7 +39,14 @@ if (runtime?.tabs?.onUpdated?.addListener) {
         const isFoundry = await isFoundryVTT(tabId);
         console.log('isFoundryVTT', tabId, isFoundry);
         if (isFoundry) {
-          await handleInstall(tabId);
+          if (isActive(tabId)) {
+            await handleInstall(tabId);
+          } else {
+            console.log(
+              'Skipping message injection; extension disabled on tab',
+              tabId,
+            );
+          }
         } else {
           console.log(
             'Skipping message injection; Foundry not detected on tab',

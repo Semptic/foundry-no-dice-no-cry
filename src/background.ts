@@ -140,16 +140,30 @@ export async function handleInstall(tabId: number): Promise<void> {
   console.log("No Dice, No Cry! extension installed");
 }
 
+export function isActive(tabId: number): boolean {
+  return activeTabs.has(tabId);
+}
+
 export async function toggleActive(tabId: number): Promise<void> {
-  const isActive = activeTabs.has(tabId);
-  if (isActive) {
+  const runtime = getRuntime();
+  const currentlyActive = isActive(tabId);
+  if (currentlyActive) {
     activeTabs.delete(tabId);
+    injectedTabs.delete(tabId);
+    await sendChatMessage(tabId, "No Dice, No Cry! deactivated");
+    if (runtime?.action?.setIcon) {
+      runtime.action.setIcon({ tabId, path: "icon_disabled.png" });
+    } else if (runtime?.browserAction?.setIcon) {
+      runtime.browserAction.setIcon({ tabId, path: "icon_disabled.png" });
+    }
   } else {
     activeTabs.add(tabId);
+    await handleInstall(tabId);
+    if (runtime?.action?.setIcon) {
+      runtime.action.setIcon({ tabId, path: "icon.png" });
+    } else if (runtime?.browserAction?.setIcon) {
+      runtime.browserAction.setIcon({ tabId, path: "icon.png" });
+    }
   }
-  const msg = isActive
-    ? "No Dice, No Cry! deactivated"
-    : "No Dice, No Cry! activated";
-  await sendChatMessage(tabId, msg);
-  console.log("Toggled active state for tab", tabId, !isActive);
+  console.log("Toggled active state for tab", tabId, !currentlyActive);
 }
