@@ -1,3 +1,5 @@
+import { replaceDiceWithZero, restoreDice } from './replaceDiceWithZero';
+
 declare const chrome: any;
 declare const browser: any;
 
@@ -137,6 +139,17 @@ export async function handleInstall(tabId: number): Promise<void> {
     "Rolling dice with unknown results gives me a lot of stress, so I'm using <a href='https://github.com/foundry-no-dice-no-cry'>no-dice-no-cry</a> to reduce it.";
 
   await sendChatMessage(tabId, message);
+  try {
+    if (runtime.scripting?.executeScript) {
+      await runtime.scripting.executeScript({
+        target: { tabId },
+        world: "MAIN",
+        func: replaceDiceWithZero,
+      });
+    }
+  } catch (err) {
+    console.warn("replaceDiceWithZero injection failed for tab", tabId, err);
+  }
   console.log("No Dice, No Cry! extension installed");
 }
 
@@ -161,6 +174,17 @@ export async function toggleActive(tabId: number): Promise<void> {
       tabId,
       "I feel the whims of fate on my side; let the dice roll as the gods (or demons) decree!",
     );
+    try {
+      if (runtime?.scripting?.executeScript) {
+        await runtime.scripting.executeScript({
+          target: { tabId },
+          world: "MAIN",
+          func: restoreDice,
+        });
+      }
+    } catch (err) {
+      console.warn("restoreDice injection failed for tab", tabId, err);
+    }
     const disabledPaths = makePaths('icon_disabled');
     if (runtime?.action?.setIcon) {
       runtime.action.setIcon({ tabId, path: disabledPaths });
