@@ -150,8 +150,10 @@ export async function toggleActive(tabId: number): Promise<void> {
   if (currentlyActive) {
     activeTabs.delete(tabId);
     injectedTabs.delete(tabId);
-    await sendChatMessage(tabId, "No Dice, No Cry! deactivated");
-    const disabledPath = runtime?.runtime?.getURL
+    await sendChatMessage(
+      tabId,
+      "I feel the whims of fate on my side; let the dice roll as the gods (or demons) decree!",
+    );    const disabledPath = runtime?.runtime?.getURL
       ? runtime.runtime.getURL("icon_disabled.png")
       : "icon_disabled.png";
     if (runtime?.action?.setIcon) {
