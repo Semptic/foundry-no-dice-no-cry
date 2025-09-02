@@ -1,6 +1,8 @@
 declare const chrome: any;
 declare const browser: any;
 
+// Background utilities for Foundry detection and chat messaging
+
 const injectedTabs = new Map<number, string | undefined>();
 const activeTabs = new Set<number>();
 
@@ -41,7 +43,10 @@ export async function isFoundryVTT(tabId: number): Promise<boolean> {
 
   try {
     if (runtime.scripting?.executeScript) {
-      console.log("Checking for Foundry VTT via runtime.scripting on tab", tabId);
+      console.log(
+        "Checking for Foundry VTT via runtime.scripting on tab",
+        tabId,
+      );
       const [result] = await runtime.scripting.executeScript({
         target: { tabId },
         // Run in the page context so window.game is accessible
@@ -50,14 +55,6 @@ export async function isFoundryVTT(tabId: number): Promise<boolean> {
       });
       const isFoundry = Boolean(result?.result);
       console.log("runtime.scripting result for tab", tabId, isFoundry);
-      return isFoundry;
-    } else if (runtime.tabs?.executeScript) {
-      console.log("Checking for Foundry VTT via runtime.tabs on tab", tabId);
-      const [result] = await runtime.tabs.executeScript(tabId, {
-        code: "Boolean(window.game)",
-      });
-      const isFoundry = Boolean(result);
-      console.log("runtime.tabs result for tab", tabId, isFoundry);
       return isFoundry;
     }
   } catch (err) {
@@ -102,13 +99,6 @@ export async function sendChatMessage(
           }
         },
         args: [message],
-      });
-    } else if (runtime.tabs?.executeScript) {
-      console.log("Injecting message via runtime.tabs to tab", tabId);
-      await runtime.tabs.executeScript(tabId, {
-        code: `(function(){const send=()=>{const a=window.game?.user?.id;const CM=window.ChatMessage;if(!a||!CM){console.warn("Cannot inject message: missing author or ChatMessage");return;}CM.create({content: ${JSON.stringify(
-          message,
-        )},author:a});};if(window.game?.ready){send();}else{window.Hooks?.once("ready",send);}})();`,
       });
     }
     console.log("Chat message injection attempted for tab", tabId);
