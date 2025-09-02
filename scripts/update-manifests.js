@@ -10,5 +10,5 @@ for (const target of ['chrome', 'firefox']) {
   const outDir = path.join(root, 'dist', `no-dice-no-cry-${target}`);
   fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(path.join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
-  fs.copyFileSync(path.join(root, 'icon.png'), path.join(outDir, 'icon.pgn'));
+  fs.copyFileSync(path.join(root, 'icon.png'), path.join(outDir, 'icon.png'));
 }

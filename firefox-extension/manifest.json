@@ -9,11 +9,11 @@
   "permissions": ["tabs", "<all_urls>"],
   "browser_action": {
     "default_title": "No Dice, No Cry!",
-    "default_icon": "icon.pgn"
+    "default_icon": "icon.png"
   },
   "icons": {
-    "16": "icon.pgn",
-    "48": "icon.pgn",
-    "128": "icon.pgn"
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
   }
 }
