@@ -147,30 +147,34 @@ export function isActive(tabId: number): boolean {
 export async function toggleActive(tabId: number): Promise<void> {
   const runtime = getRuntime();
   const currentlyActive = isActive(tabId);
+  const makePaths = (base: string): Record<number, string> => {
+    const url = (size: number) =>
+      runtime?.runtime?.getURL
+        ? runtime.runtime.getURL(`${base}-${size}.png`)
+        : `${base}-${size}.png`;
+    return { 16: url(16), 32: url(32), 48: url(48), 128: url(128) };
+  };
   if (currentlyActive) {
     activeTabs.delete(tabId);
     injectedTabs.delete(tabId);
     await sendChatMessage(
       tabId,
       "I feel the whims of fate on my side; let the dice roll as the gods (or demons) decree!",
-    );    const disabledPath = runtime?.runtime?.getURL
-      ? runtime.runtime.getURL("icon_disabled.png")
-      : "icon_disabled.png";
+    );
+    const disabledPaths = makePaths('icon_disabled');
     if (runtime?.action?.setIcon) {
-      runtime.action.setIcon({ tabId, path: disabledPath });
+      runtime.action.setIcon({ tabId, path: disabledPaths });
     } else if (runtime?.browserAction?.setIcon) {
-      runtime.browserAction.setIcon({ tabId, path: disabledPath });
+      runtime.browserAction.setIcon({ tabId, path: disabledPaths });
     }
   } else {
     activeTabs.add(tabId);
     await handleInstall(tabId);
-    const activePath = runtime?.runtime?.getURL
-      ? runtime.runtime.getURL("icon.png")
-      : "icon.png";
+    const activePaths = makePaths('icon');
     if (runtime?.action?.setIcon) {
-      runtime.action.setIcon({ tabId, path: activePath });
+      runtime.action.setIcon({ tabId, path: activePaths });
     } else if (runtime?.browserAction?.setIcon) {
-      runtime.browserAction.setIcon({ tabId, path: activePath });
+      runtime.browserAction.setIcon({ tabId, path: activePaths });
     }
   }
   console.log("Toggled active state for tab", tabId, !currentlyActive);
