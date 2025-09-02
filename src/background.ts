@@ -151,18 +151,24 @@ export async function toggleActive(tabId: number): Promise<void> {
     activeTabs.delete(tabId);
     injectedTabs.delete(tabId);
     await sendChatMessage(tabId, "No Dice, No Cry! deactivated");
+    const disabledPath = runtime?.runtime?.getURL
+      ? runtime.runtime.getURL("icon_disabled.png")
+      : "icon_disabled.png";
     if (runtime?.action?.setIcon) {
-      runtime.action.setIcon({ tabId, path: "icon_disabled.png" });
+      runtime.action.setIcon({ tabId, path: disabledPath });
     } else if (runtime?.browserAction?.setIcon) {
-      runtime.browserAction.setIcon({ tabId, path: "icon_disabled.png" });
+      runtime.browserAction.setIcon({ tabId, path: disabledPath });
     }
   } else {
     activeTabs.add(tabId);
     await handleInstall(tabId);
+    const activePath = runtime?.runtime?.getURL
+      ? runtime.runtime.getURL("icon.png")
+      : "icon.png";
     if (runtime?.action?.setIcon) {
-      runtime.action.setIcon({ tabId, path: "icon.png" });
+      runtime.action.setIcon({ tabId, path: activePath });
     } else if (runtime?.browserAction?.setIcon) {
-      runtime.browserAction.setIcon({ tabId, path: "icon.png" });
+      runtime.browserAction.setIcon({ tabId, path: activePath });
     }
   }
   console.log("Toggled active state for tab", tabId, !currentlyActive);
