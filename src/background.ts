@@ -150,7 +150,10 @@ export async function toggleActive(tabId: number): Promise<void> {
   if (currentlyActive) {
     activeTabs.delete(tabId);
     injectedTabs.delete(tabId);
-    await sendChatMessage(tabId, "No Dice, No Cry! deactivated");
+    await sendChatMessage(
+      tabId,
+      "I feel the whims of fate on my side; let the dice roll as the gods (or demons) decree!",
+    );
     if (runtime?.action?.setIcon) {
       runtime.action.setIcon({ tabId, path: "icon_disabled.png" });
     } else if (runtime?.browserAction?.setIcon) {
