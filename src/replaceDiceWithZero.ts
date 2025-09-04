@@ -41,6 +41,32 @@ export function replaceDiceWithZero(): void {
       this._result = "0";
       return this;
     };
+
+    // Force rolls to be blind and reveal them after any dice animation
+    proto._noDiceNoCryOriginalToMessage = proto.toMessage;
+    proto.toMessage = async function (
+      messageData: any,
+      options: any = {},
+    ): Promise<any> {
+      const msg = await proto._noDiceNoCryOriginalToMessage.call(
+        this,
+        messageData,
+        { ...options, rollMode: "blindroll" },
+      );
+      if (msg?.blind) {
+        const reveal = () => msg.update({ blind: false, whisper: [] });
+        const hooks = (window as any).Hooks;
+        if ((window as any).game?.dice3d && hooks?.once) {
+          hooks.once("diceSoNiceRollComplete", reveal);
+          // Fallback in case the hook never fires
+          setTimeout(reveal, 2000);
+        } else {
+          // Allow the message to render before revealing
+          setTimeout(reveal, 100);
+        }
+      }
+      return msg;
+    };
     proto._noDiceNoCryPatched = true;
   };
 
@@ -75,6 +101,10 @@ export function restoreDice(): void {
   if (proto._noDiceNoCryOriginalEvaluate) {
     proto._evaluate = proto._noDiceNoCryOriginalEvaluate;
     delete proto._noDiceNoCryOriginalEvaluate;
+  }
+  if (proto._noDiceNoCryOriginalToMessage) {
+    proto.toMessage = proto._noDiceNoCryOriginalToMessage;
+    delete proto._noDiceNoCryOriginalToMessage;
   }
   delete proto._noDiceNoCryPatched;
 }
